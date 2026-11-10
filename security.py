@@ -1,4 +1,7 @@
 from pwdlib import PasswordHash
+import jwt
+import os
+from datetime import datetime, timedelta, timezone
 
 # this creates the password hashing object
 # recommended is the argon2id? since thats the one i downloaded
@@ -19,3 +22,24 @@ def verify_password(
         plain_password,
         hashed_password
     )
+
+
+#JWT part
+SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+ALGORITHM = "HS256"
+
+def create_access_token(user_id: int) -> str:
+    expiry = datetime.now(timezone.utc) + timedelta(minutes=30)
+
+    payload = {
+        "sub": str(user_id),
+        "exp": expiry
+    }
+
+    token = jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+    return token

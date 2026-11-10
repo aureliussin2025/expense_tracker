@@ -40,14 +40,19 @@ def create_user(data: UserCreation, db: Session = Depends(get_db)):
 def login_user(data: LoginInstance, db: Session = Depends(get_db)):
     #check if data matches one of the records in the users table
     #check if username exists
-    # existing_user = db.query(Users).filter(Users.username == data.username).first()
+    existing_user = db.query(Users).filter(Users.username == data.username).first()
 
-    # if existing_user.username != data.username or verify():
-    #     raise HTTPException(
-    #         status_code=404
-    #         detail="Username and/or Password is invalid"
-    #     )
+    if existing_user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Username and/or Password is invalid"
+        )
 
+    if not verify_password(data.password, existing_user.password):
+            raise HTTPException(
+            status_code=401,
+            detail="Username and/or Password is invalid"
+        )
     #if it exists, generate the jwt
     #if it doesnt exist, reject (future rate limiting idea ?)
 
